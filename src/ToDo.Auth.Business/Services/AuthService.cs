@@ -76,10 +76,18 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.UtcNow
         };
 
-        var defaultRole = await _roleRepository.GetByNameAsync(RoleNames.User, cancellationToken);
-        if (defaultRole is not null)
+        // Назначаем выбранную роль (Customer или Freelancer) + базовую User
+        var roleName = request.Role is "Customer" ? RoleNames.Customer : RoleNames.Freelancer;
+        var role = await _roleRepository.GetByNameAsync(roleName, cancellationToken);
+        if (role is not null)
         {
-            user.Roles.Add(defaultRole);
+            user.Roles.Add(role);
+        }
+
+        var userRole = await _roleRepository.GetByNameAsync(RoleNames.User, cancellationToken);
+        if (userRole is not null)
+        {
+            user.Roles.Add(userRole);
         }
 
         await _userRepository.AddAsync(user, cancellationToken);

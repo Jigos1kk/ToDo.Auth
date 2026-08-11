@@ -7,7 +7,7 @@ using ToDo.Auth.Data.Repositories;
 namespace ToDo.Auth.Business.Services;
 
 /// <summary>
-/// Создаёт при запуске приложения базовые роли (User, Admin)
+/// Создаёт при запуске приложения базовые роли (User, Admin, Customer, Freelancer)
 /// и администратора по умолчанию, если их ещё нет в базе.
 /// </summary>
 public class AuthDbSeeder
@@ -36,6 +36,8 @@ public class AuthDbSeeder
     {
         await EnsureRoleExistsAsync(RoleNames.User, cancellationToken);
         await EnsureRoleExistsAsync(RoleNames.Admin, cancellationToken);
+        await EnsureRoleExistsAsync(RoleNames.Customer, cancellationToken);
+        await EnsureRoleExistsAsync(RoleNames.Freelancer, cancellationToken);
         await EnsureAdminExistsAsync(cancellationToken);
     }
 

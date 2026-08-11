@@ -22,6 +22,12 @@ public class RegisterRequest
     [StringLength(100, ErrorMessage = "Пароль не может превышать 100 символов.")]
     [PasswordStrength]
     public string Password { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Роль: Customer (заказчик) или Freelancer (фрилансер). По умолчанию Freelancer.
+    /// </summary>
+    [RegularExpression(@"^(Customer|Freelancer)$", ErrorMessage = "Роль должна быть Customer или Freelancer.")]
+    public string Role { get; set; } = "Freelancer";
 }
 
 /// <summary>
