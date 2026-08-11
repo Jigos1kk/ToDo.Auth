@@ -52,11 +52,11 @@ public class AuthDbSeeder
 
     private async Task EnsureAdminExistsAsync(CancellationToken cancellationToken)
     {
-        var email = _adminOptions.Email.Trim().ToLowerInvariant();
-        var userName = _adminOptions.UserName.Trim();
+        var normalizedEmail = _adminOptions.Email.Trim().ToLowerInvariant();
+        var normalizedUserName = _adminOptions.UserName.Trim().ToUpperInvariant();
 
-        if (await _userRepository.ExistsByEmailAsync(email, cancellationToken)
-            || await _userRepository.ExistsByUserNameAsync(userName, cancellationToken))
+        if (await _userRepository.ExistsByNormalizedEmailAsync(normalizedEmail, cancellationToken)
+            || await _userRepository.ExistsByNormalizedUserNameAsync(normalizedUserName, cancellationToken))
         {
             return;
         }
@@ -64,9 +64,13 @@ public class AuthDbSeeder
         var admin = new User
         {
             Id = Guid.NewGuid(),
-            Email = email,
-            UserName = userName,
+            Email = _adminOptions.Email.Trim(),
+            NormalizedEmail = normalizedEmail,
+            UserName = _adminOptions.UserName.Trim(),
+            NormalizedUserName = normalizedUserName,
             PasswordHash = _passwordHasher.Hash(_adminOptions.Password),
+            EmailConfirmed = true,
+            IsActive = true,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -77,6 +81,6 @@ public class AuthDbSeeder
         }
 
         await _userRepository.AddAsync(admin, cancellationToken);
-        _logger.LogInformation("Создан администратор по умолчанию ({Email}).", email);
+        _logger.LogInformation("Создан администратор по умолчанию ({Email}).", admin.Email);
     }
 }

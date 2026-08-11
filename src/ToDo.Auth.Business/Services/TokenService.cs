@@ -13,6 +13,7 @@ namespace ToDo.Auth.Business.Services;
 public class TokenService : ITokenService
 {
     private const int RefreshTokenSize = 64;
+    private const int ServiceTokenSize = 32;
 
     private readonly JwtOptions _options;
     private readonly SymmetricSecurityKey _signingKey;
@@ -55,5 +56,15 @@ public class TokenService : ITokenService
     public string HashRefreshToken(string refreshToken)
     {
         return Base64Url.EncodeToString(SHA256.HashData(Encoding.UTF8.GetBytes(refreshToken)));
+    }
+
+    public string GenerateToken()
+    {
+        return Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(ServiceTokenSize));
+    }
+
+    public string HashToken(string token)
+    {
+        return Base64Url.EncodeToString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     }
 }

@@ -73,5 +73,7 @@ public class UserDto
 
     public string UserName { get; set; } = string.Empty;
 
+    public bool EmailConfirmed { get; set; }
+
     public List<string> Roles { get; set; } = [];
 }
