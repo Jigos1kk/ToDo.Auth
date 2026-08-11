@@ -23,5 +23,5 @@ public class User
 
     public List<Role> Roles { get; set; } = [];
 
-    public List<RefreshToken> RefreshTokens { get; set; } = [];
+    public List<UserSession> Sessions { get; set; } = [];
 }

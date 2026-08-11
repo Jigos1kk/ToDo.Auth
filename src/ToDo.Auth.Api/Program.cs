@@ -15,9 +15,13 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// Настройки JWT (проверяются при запуске приложения)
+// Настройки JWT и администратора по умолчанию (проверяются при запуске приложения)
 builder.Services.AddOptions<JwtOptions>()
     .Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddOptions<AdminOptions>()
+    .Bind(builder.Configuration.GetSection(AdminOptions.SectionName))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
@@ -46,20 +50,26 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // Слой бизнес-логики
 builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<AuthDbSeeder>();
 
 var app = builder.Build();
 
-// Создаём базу данных, если она ещё не существует
+// Создаём базу данных, если она ещё не существует,
+// и добавляем базовые роли и администратора по умолчанию
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     dbContext.Database.EnsureCreated();
+
+    var seeder = scope.ServiceProvider.GetRequiredService<AuthDbSeeder>();
+    seeder.SeedAsync().GetAwaiter().GetResult();
 }
 
 // Configure the HTTP request pipeline.

@@ -14,6 +14,8 @@ public class AuthDbContext : DbContext
 
     public DbSet<Role> Roles => Set<Role>();
 
+    public DbSet<UserSession> UserSessions => Set<UserSession>();
+
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,11 +39,19 @@ public class AuthDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired().HasMaxLength(50);
             entity.HasIndex(e => e.Name).IsUnique();
+        });
 
-            // Базовые роли создаются вместе с базой данных
-            entity.HasData(
-                new Role { Id = new Guid("3d9f2b1a-7c4e-4a8f-9e5b-1c6d8a2f4e70"), Name = RoleNames.User },
-                new Role { Id = new Guid("8a1e5c3d-2f6b-4d9a-b7e1-5c3f9a0d2e84"), Name = RoleNames.Admin });
+        modelBuilder.Entity<UserSession>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.IpAddress).HasMaxLength(45);
+            entity.Property(e => e.UserAgent).HasMaxLength(512);
+            entity.HasIndex(e => e.UserId);
+
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Sessions)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<RefreshToken>(entity =>
@@ -49,11 +59,11 @@ public class AuthDbContext : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.TokenHash).IsRequired().HasMaxLength(100);
             entity.HasIndex(e => e.TokenHash).IsUnique();
-            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.SessionId);
 
-            entity.HasOne(e => e.User)
-                .WithMany(u => u.RefreshTokens)
-                .HasForeignKey(e => e.UserId)
+            entity.HasOne(e => e.Session)
+                .WithMany(s => s.RefreshTokens)
+                .HasForeignKey(e => e.SessionId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

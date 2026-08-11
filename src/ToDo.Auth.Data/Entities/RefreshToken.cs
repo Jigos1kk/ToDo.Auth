@@ -1,14 +1,14 @@
 namespace ToDo.Auth.Data.Entities;
 
 /// <summary>
-/// Refresh-токен пользователя. В базе хранится только хеш токена,
+/// Refresh-токен, выданный в рамках сессии. В базе хранится только хеш токена,
 /// само значение выдаётся клиенту один раз при создании.
 /// </summary>
 public class RefreshToken
 {
     public Guid Id { get; set; }
 
-    public Guid UserId { get; set; }
+    public Guid SessionId { get; set; }
 
     /// <summary>
     /// SHA-256 хеш значения токена.
@@ -25,11 +25,11 @@ public class RefreshToken
     public DateTime? RevokedAt { get; set; }
 
     /// <summary>
-    /// Хеш токена, которым этот токен был заменён при ротации.
+    /// Идентификатор токена, которым этот токен был заменён при ротации.
     /// </summary>
-    public string? ReplacedByTokenHash { get; set; }
+    public Guid? ReplacedByTokenId { get; set; }
 
-    public User User { get; set; } = null!;
+    public UserSession Session { get; set; } = null!;
 
     /// <summary>
     /// Токен действует, если он не отозван и не истёк.

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using ToDo.Auth.Business.Validation;
 
 namespace ToDo.Auth.Business.Dtos;
 
@@ -14,10 +15,12 @@ public class RegisterRequest
 
     [Required(ErrorMessage = "Имя пользователя обязательно.")]
     [StringLength(100, MinimumLength = 3, ErrorMessage = "Имя пользователя должно содержать от 3 до 100 символов.")]
+    [RegularExpression(@"^[\p{L}0-9_.-]+$", ErrorMessage = "Имя пользователя может содержать только буквы, цифры и символы _, ., -.")]
     public string UserName { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Пароль обязателен.")]
-    [StringLength(100, MinimumLength = 8, ErrorMessage = "Пароль должен содержать от 8 до 100 символов.")]
+    [StringLength(100, ErrorMessage = "Пароль не может превышать 100 символов.")]
+    [PasswordStrength]
     public string Password { get; set; } = string.Empty;
 }
 
